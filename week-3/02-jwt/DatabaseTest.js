@@ -6,8 +6,8 @@ app.use(express.json())
 
 mongoose.connect("mongodb://localhost:27017/TestDB1")   
 const User = mongoose.model('Users', { name: String, email: String, password: String});
-const user = new User({ name: 'bhaijaan',email:"bhai@gmail.com",password:"xyz" });
-user.save()
+// const user = new User({ name: 'bhaijaan',email:"bhai@gmail.com",password:"xyz" });
+// user.save()
 app.get("/",(req,res)=>{
     console.log("hello world")
     res.send({msg:"hello"})
@@ -29,9 +29,7 @@ app.post('/signup', async function(req,res){
         password:password
     })
     user.save()
-    res.json({
-       "msg" :"user saved successfully"
-    })
+    res.send("user saved ji")
 
 })
 

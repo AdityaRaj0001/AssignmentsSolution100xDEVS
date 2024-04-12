@@ -7,37 +7,37 @@ app.use(express.json());
 
 const ALL_USERS = [
   {
-    username: "harkirat@gmail.com",
+    email: "harkirat@gmail.com",
     password: "123",
     name: "harkirat singh",
   },
   {
-    username: "raman@gmail.com",
+    email: "raman@gmail.com",
     password: "123321",
     name: "Raman singh",
   },
   {
-    username: "priya@gmail.com",
+    email: "priya@gmail.com",
     password: "123321",
     name: "Priya kumari",
   },
 ];
 
 const userExists = (user, pass) => {
-  return ALL_USERS.find((item) => item.username === user && item.password === pass);
+  return ALL_USERS.find((item) => item.email === user && item.password === pass);
 };
 
 app.post("/signin", function (req, res) {
-  const username = req.body.username;
+  const email = req.body.email;
   const password = req.body.password;
 
-  if (!userExists(username, password)) {
+  if (!userExists(email, password)) {
     return res.status(403).json({
       msg: "User doesnt exist in our in memory db",
     });
   }
 
-  var token = jwt.sign({ username: username }, jwtPassword);
+  var token = jwt.sign({ email: email }, jwtPassword);
   return res.json({
     token,
   });
@@ -46,13 +46,12 @@ app.post("/signin", function (req, res) {
 app.get("/users", function (req, res) {
   const token = req.headers.authorization;
   try {
-    const decoded = jwt.verify(token, jwtPassword);
-    const username = decoded.username;
+    const {email} = jwt.verify(token, jwtPassword);
 
     res.json({
-        users: ALL_USERS.filter((item)=>(item.username!==username))
+        users: ALL_USERS.filter((item)=>(item.email!==email))
     })
-    // return a list of users other than this username
+    // return a list of users other than this email
   } catch (err) {
     return res.status(403).json({
       msg: "Invalid token",
