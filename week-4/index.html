@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      let globalId = 1;
+      let todoState = [];
+      let oldTodoState = [];
+
+      function addTodoToDom(todo) {
+        const todoList = document.getElementById("todos");
+        const todoElement = document.createElement("div");
+        todoElement.setAttribute("id", todo.id);
+
+        todoElement.innerHTML = `
+                <strong>Title: ${todo.title}</strong><br />Description: ${todo.description} 
+                <button onclick="removeTodo(${todo.id})">Remove</button>
+                <button onclick="updateTodo(${todo.id})">Update</button>
+            `;
+        todoList.appendChild(todoElement);
+      }
+
+      function removeTodoFromDom(todo) {
+        const todoList = document.getElementById("todos");
+        const selectedTodoElement = document.getElementById(todo.id.toString());
+        if (selectedTodoElement) {
+          todoList.removeChild(selectedTodoElement);
+        }
+      }
+
+      function updateTodoInDom(oldTodo, newTodo) {
+        const todoList = document.getElementById("todos");
+        
+        const selectedTodoElement = document.getElementById(
+          oldTodo.id.toString()
+        );
+        if (selectedTodoElement) {
+          selectedTodoElement.innerHTML = `
+                    <strong>Title: ${newTodo.title}</strong><br />Description: ${newTodo.description} 
+                    <button onclick="removeTodo(${newTodo.id})">Remove</button>
+                    <button onclick="updateTodo(${newTodo.id})">Update</button>
+                `;
+        }
+      }
+
+      function updateState(newTodos) {
+        const added = newTodos.filter(
+          (todo) => !oldTodoState.some((oldTodo) => oldTodo.id === todo.id)
+        );
+        const deleted = oldTodoState.filter(
+          (oldTodo) => !newTodos.some((todo) => todo.id === oldTodo.id)
+        );
+        const updated = newTodos.filter((newTodo) => {
+          const oldTodo = oldTodoState.find(
+            (oldTodo) => oldTodo.id === newTodo.id
+          );
+          return (
+            oldTodo &&
+            (oldTodo.title !== newTodo.title ||
+              oldTodo.description !== newTodo.description)
+          );
+        });
+
+        added.forEach((newTodo) => addTodoToDom(newTodo));
+        deleted.forEach((oldTodo) => removeTodoFromDom(oldTodo));
+        updated.forEach((newTodo) => {
+          const oldTodo = oldTodoState.find(
+            (oldTodo) => oldTodo.id === newTodo.id
+          );
+          updateTodoInDom(oldTodo, newTodo);
+        });
+
+        oldTodoState = [...newTodos];
+      }
+
+      function addTodo() {
+        const title = document.getElementById("title").value;
+        const description = document.getElementById("description").value;
+        todoState.push({
+          title: title,
+          description: description,
+          id: todoState.length,
+        });
+        updateState(todoState);
+        document.getElementById("title").value = "";
+        document.getElementById("description").value = "";
+      }
+
+      function removeTodo(todoId) {
+        todoState = todoState.filter((todo) => todo.id !== todoId);
+        updateState(todoState);
+      }
+
+      function updateTodo(todoId) {
+        const newTitle = prompt("Enter new title:");
+        const newDescription = prompt(
+          "Enter new description:"
+        );
+
+        if (newTitle !== null && newDescription !== null) {
+          todoState = todoState.map((todo) => {
+            if (todo.id === todoId) {
+              return {
+                ...todo,
+                title: newTitle,
+                description: newDescription,
+              };
+            } else {
+              return todo;
+            }
+          });
+          updateState(todoState);
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <input type="text" id="title" placeholder="Todo title" /> <br /><br />
+    <input type="text" id="description" placeholder="Todo description" />
+    <br /><br />
+    <button onclick="addTodo()">Add todo</button>
+    <br />
+    <br />
+
+    <div id="todos"></div>
+  </body>
+</html>
